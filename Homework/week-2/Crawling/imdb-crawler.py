@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# Name:
-# Student number:
+# Name: Lino Miltenburg
+# Student number: 11136375
 '''
 This script crawls the IMDB top 250 movies.
 '''
@@ -192,6 +192,7 @@ def main():
 
     # Save a CSV file with the relevant information for the top 250 movies.
     print 'Saving CSV ...'
+    print len(rows)
     save_csv(os.path.join(SCRIPT_DIR, 'top250movies.csv'), rows)
 
 
@@ -212,11 +213,11 @@ def scrape_top_250(url):
     '''
     movie_urls = []
 
+    # Grab web page
     index_html = URL(url).download(cached=True)
 
     # Extract relevant information for each movie
     index_dom = DOM(index_html)
-
     for a in index_dom.by_tag("td.titleColumn")[:250]:
         for b in a.by_tag("a"):
             b = str(b)
@@ -241,24 +242,60 @@ def scrape_movie_page(dom):
         several), actor(s) (semicolon separated if several), rating, number
         of ratings.
     '''
+    # extract title
     for a in dom.by_tag("h1.header"):
-        for title in a.by_attribute(itemprop="name"):
-            print title[0]
+        for title in a.by_tag("span.itemprop"):
+            title = title.content
 
-    for duration in dom.by_attribute(itemprop="duration"):
-        duration = str(duration[0])
-        duration = duration.strip()
-        print duration
-
+    # extract duration
     for a in dom.by_tag("div.infobar"):
+        for duration in a.by_tag("time"):
+            duration = str(duration[0])
+            duration = duration.strip()
+            duration = duration[:-4]
+
+    # extract genres
+        genres = ""
         for genre in a.by_tag("span.itemprop"):
-            print genre.content
+            genres += str(genre[0])
+            genres += "; "
+        genres = genres[:-2]
+
+    # extract directors
+    directors = ""
+    for a in dom.by_attribute(itemprop="director"):
+        for director in a.by_tag("span.itemprop"):
+            directors += director.content
+            directors += "; "
+        directors = directors[:-2]
+
+    # extract writers
+    writers = ""
+    for a in dom.by_tag("div.txt-block")[1:2]:
+        for writer in a.by_tag("span.itemprop"):
+            writers += writer.content
+            writers += "; "
+        writers = writers[:-2]
+
+    # extract actors
+    actors = ""
+    for a in dom.by_tag("div.txt-block")[2:3]:
+        for actor in a.by_tag("span.itemprop"):
+            actors += actor.content
+            actors += "; "
+        actors = actors[:-2]
+
+    # extract ratings and number of ratings
+    for a in dom.by_tag("div.star-box-details"):
+        for rating in a.by_attribute(itemprop="ratingValue"):
+            rating = str(rating[0])
+        for n_ratings in a.by_attribute(itemprop="ratingCount"):
+            n_ratings = str(n_ratings[0])
 
     # Return everything of interest for this movie (all strings as specified
     # in the docstring of this function).
     return title, duration, genres, directors, writers, actors, rating, \
-        n_ratings
-
+         n_ratings
 
 if __name__ == '__main__':
     main()  # call into the progam
