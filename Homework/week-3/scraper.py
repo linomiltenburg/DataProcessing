@@ -1,9 +1,4 @@
 import csv
-#OUTPUT_CSV = 'knmi.csv'
-
-#wr = csv.writer(knmi, quoting=csv.QUOTE_ALL)
-#wr.writerow(OUTPUT_CSV)
-
 
 with open('KNMI_20141231.txt', 'r') as f:
     content = f.readlines()[12:]
@@ -20,4 +15,4 @@ with open("data.csv", "wb") as f:
         date = year + "/" + month + "/" + day
         # extract temperature
         temp = row.split(",")[2].strip()
-        writer.writerow([date, temp])
+        writer.writerow([date,temp])
