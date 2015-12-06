@@ -9,9 +9,9 @@ json_list = []
 for row in content:
     # extract date and change notation
     date = row.split(",")[1]
-    year = date[:4]
-    month = date[4:6]
-    day = date[6:8]
+    year = date[:4].strip()
+    month = date[4:6].strip()
+    day = date[6:8].strip()
     date = year + "/" + month + "/" + day
     # extract temperature
     temp = row.split(",")[2].strip()
@@ -21,5 +21,5 @@ for row in content:
 json_list = json.dumps(python_list)
 print json_list
 # write json_list to file
-with open('data.txt', 'w') as outfile:
+with open('data.json', 'w') as outfile:
     json.dump(json_list, outfile)
